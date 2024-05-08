@@ -1,0 +1,6 @@
+first add the env 
+PORT
+MONGODB_URL
+
+To start the server
+npm run server
