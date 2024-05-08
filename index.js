@@ -9,8 +9,6 @@ const {userRoutes} = require('./routes/index')
 const {connection} = require('./confige/confige')
 const authenticate = require("./middleware/authenticate")
 
-
-
 //==========================Routes============================================>
 
 app.use('/', userRoutes);
