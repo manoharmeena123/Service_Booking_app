@@ -15,9 +15,11 @@
     "cookie-parser": "^1.4.6",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
-    "joi": "^17.13.0",
+    "joi": "^17.13.1",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.3.3",
-    "nodemon": "^3.1.0"
+    "mongoose": "^8.3.4",
+    "nodemailer": "^6.9.13",
+    "nodemon": "^3.1.0",
+    "twilio": "^5.0.4"
   }
 }
