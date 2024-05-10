@@ -4,19 +4,20 @@ const userModel = require('../models/userModel');
 const otpModel = require('../models/otpModel');
 const generateOTP = require('../utils/otpHelper');
 const sendOTPEmail = require('../utils/emailService');
+const sendOTPSMS = require("../utils/smsService")
 
 const forgotPassword = async (req, res) => {
     try {
         const { email } = req.body;
         const user = await userModel.findOne({ email });
-
+        console.log("user",user)
         if (!user) {
             return res.status(404).json({ error: 'User not found or not registered' });
         }
 
         const otp = generateOTP();
         const otpExpiry = new Date(Date.now() + 15 * 60 * 1000); // OTP valid for 15 minutes
-
+        console.log(otp, otpExpiry)
         // Save or update OTP for this user
         const existingOtp = await otpModel.findOne({ email });
         if (existingOtp) {
@@ -29,6 +30,7 @@ const forgotPassword = async (req, res) => {
         }
 
         await sendOTPEmail(email, otp);
+        await sendOTPSMS(user?.mobileNumber,otp)
         // Optionally send OTP via SMS to user.mobileNumber here.
         res.status(200).json({ message: 'OTP sent to email and mobile number', otp });
     } catch (error) {
