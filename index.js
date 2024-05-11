@@ -14,6 +14,10 @@ const authenticate = require("./middleware/authenticate");
 
 //==========================Routes============================================>
 
+// Landing page without authentication
+app.get('/', (req, res) => {
+    res.status(200).json("Welcome on E-Commerce App");
+});
 // Unauthenticated routes
 app.use('/', userRoutes);
 
@@ -23,10 +27,6 @@ app.use(authenticate);
 // Add other authenticated routes here, e.g., updating user profile
 userRoutes.patch('/auth/update', authenticate, updateUser); // Apply middleware directly to sensitive route
 
-// Landing page without authentication
-app.get('/', (req, res) => {
-    res.status(200).json("Welcome on E-Commerce App");
-});
 
 // Global error handler middleware
 app.use((err, req, res, next) => {
