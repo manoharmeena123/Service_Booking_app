@@ -23,9 +23,10 @@ const forgotPassword = async (req, res) => {
         if (existingOtp) {
             existingOtp.otp = otp;
             existingOtp.otpExpiry = otpExpiry;
+            existingOtp.mobileNumber = user.mobileNumber; 
             await existingOtp.save();
         } else {
-            const newOtp = new otpModel({ email, otp, otpExpiry });
+            const newOtp = new otpModel({ email, otp, otpExpiry,mobileNumber: user?.mobileNumber});
             await newOtp.save();
         }
 
@@ -41,19 +42,30 @@ const forgotPassword = async (req, res) => {
 
 const resetPassword = async (req, res) => {
     try {
-        const { email, otp, newPassword } = req.body;
-        const user = await userModel.findOne({ email });
-        const otpData = await otpModel.findOne({ email });
-
-        if (!user || !otpData || otpData.otp !== otp || otpData.otpExpiry < new Date()) {
+        const { otp, password } = req.body;
+        // Find OTP data to identify the user
+        const otpData = await otpModel.findOne({ otp, otpExpiry: { $gt: new Date() } });
+        // console.log("otpData",otpData)
+        if (!otpData) {
             return res.status(400).json({ error: 'Invalid OTP or OTP expired' });
         }
+        // Retrieve the user using the email or mobile number saved in OTP data
+        const user = await userModel.findOne({
+            $or: [
+                { email: otpData.email },
+                { mobileNumber: otpData.mobileNumber }
+            ]
+        });
+        // console.log("otpDatauser",user)
 
-        user.password = await bcrypt.hash(newPassword, 5);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        // Hash the new password and save it
+        user.password = await bcrypt.hash(password, 5);
         await user.save();
-
-        await otpModel.deleteOne({ email }); // Delete OTP data after successful password reset
-
+        // Delete OTP data after successful password reset
+        await otpModel.deleteOne({ _id: otpData._id });
         res.status(200).json({ message: 'Password reset successful' });
     } catch (error) {
         console.error(error);
@@ -61,4 +73,39 @@ const resetPassword = async (req, res) => {
     }
 };
 
-module.exports = { forgotPassword, resetPassword };
+
+
+const mobileOtp = async (req, res) => {
+    try {
+        const { mobileNumber } = req.body;
+        const user = await userModel.findOne({ mobileNumber });
+        console.log("user", user)
+        if (!user) {
+            return res.status(404).json({ error: 'Mobile number not registered' });
+        }
+
+        const otp = generateOTP();
+        const otpExpiry = new Date(Date.now() + 15 * 60 * 1000); // OTP valid for 15 minutes
+        console.log(otp, otpExpiry)
+        // Save or update OTP for this user
+        const existingOtp = await otpModel.findOne({ mobileNumber });
+        if (existingOtp) {
+            existingOtp.otp = otp;
+            existingOtp.otpExpiry = otpExpiry;
+            await existingOtp.save();
+        } else {
+            const newOtp = new otpModel({ mobileNumber, otp, otpExpiry });
+            await newOtp.save();
+        }
+
+        // Optionally send OTP via SMS
+        await sendOTPSMS(mobileNumber, otp);
+        res.status(200).json({ message: 'OTP sent to mobile number', otp });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+module.exports = { forgotPassword, resetPassword, mobileOtp };
+

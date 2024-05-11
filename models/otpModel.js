@@ -13,7 +13,11 @@ const otpSchema = new mongoose.Schema({
   otpExpiry: {
     type: Date,
     required: true,
-  }
+  },
+  mobileNumber: {
+    type: String,
+    required: true,
+  },
 });
 
 module.exports = mongoose.model('OTP', otpSchema);
