@@ -9,35 +9,33 @@ app.use(express.urlencoded({ extended: true }));
 // Import routes and middleware
 const { userRoutes, authRouter, userProfileRouter } = require('./routes/index');
 const { connection } = require('./confige/confige');
-const { updateUser } = require("./controllers/userController")
 const authenticate = require("./middleware/authenticate");
-const errorHandler = require("./middleware/errorHandling")
-//==========================Routes============================================>
+const errorHandler = require("./middleware/errorHandling");
 
-// Landing page without authentication
+// Landing page and unauthenticated routes
 app.get('/', (req, res) => {
-    res.status(200).json("Welcome on E-Commerce App");
+    res.status(200).json("Welcome to the E-Commerce App");
 });
-// Unauthenticated routes
 app.use('/auth', userRoutes);
-app.use('/auth', authRouter)
-// Only authenticated users can access routes below this middleware
+app.use('/auth', authRouter);
+
+// Authentication middleware applied here
 app.use(authenticate);
 
-// Add other authenticated routes here, e.g., updating user profile
+// Authenticated routes
 app.use('/profile', userProfileRouter);
 
-
-// Use the error handling middleware after all routes and other middleware
+// Error handling middleware
 app.use(errorHandler);
-// ======================Start the server======================================>
+
+// Start the server
 app.listen(process.env.PORT, async () => {
     try {
-        await connection;
+        await connection; // Ensure database connection
         console.log('Database connected successfully');
     } catch (error) {
         console.error(`Error connecting to the database: ${error.message}`);
         process.exit(1);
     }
-    console.log(`Server is running on ${process.env.PORT}`);
+    console.log(`Server is running on port ${process.env.PORT}`);
 });
