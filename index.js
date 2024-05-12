@@ -7,7 +7,7 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
 // Import routes and middleware
-const { userRoutes } = require('./routes/index');
+const { userRoutes,authRouter } = require('./routes/index');
 const { connection } = require('./confige/confige');
 const { updateUser } = require("./controllers/userController")
 const authenticate = require("./middleware/authenticate");
@@ -20,7 +20,7 @@ app.get('/', (req, res) => {
 });
 // Unauthenticated routes
 app.use('/', userRoutes);
-
+app.use('/',authRouter)
 // Only authenticated users can access routes below this middleware
 app.use(authenticate);
 
