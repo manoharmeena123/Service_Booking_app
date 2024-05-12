@@ -3,6 +3,7 @@ const userModel = require('../models/userModel'); // Adjust the path as necessar
 
 // Middleware to authenticate token, assumed to be required here or will be passed from app.js
 const updateUser = async (req, res) => {
+    
     const { email, password, mobileNumber } = req.body;
     const userId = req?.user?.userId;
     try {

@@ -10,7 +10,7 @@ const getTokenFromRequest = (req) => {
 
 const authenticate = async (req, res, next) => {
     const token = getTokenFromRequest(req);
-    console.log('Token:', token);
+    // console.log('Token:', token);
 
     if (!token) {
         return res.status(401).json({ error: 'Unauthorized - Token missing' });
@@ -18,7 +18,7 @@ const authenticate = async (req, res, next) => {
 
     try {
         const decodedToken = jwt.verify(token, process.env.SECRET_KEY);
-        console.log('Decoded Token:', decodedToken);
+        // console.log('Decoded Token:', decodedToken);
 
         const user = await userModel.findById(decodedToken.userId);
         if (!user) {
