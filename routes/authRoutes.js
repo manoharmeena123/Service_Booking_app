@@ -1,15 +1,18 @@
 const express = require('express');
-const { forgotPassword, resetPassword, mobileOtp } = require('../controllers/authController');
+const { forgotPassword, resetPassword,verifyOTP, mobileOtp } = require('../controllers/authController');
 
 const authRouter = express.Router();
 
 // Endpoint for handling password recovery via email
-authRouter.post('/auth/forgot-password', forgotPassword);
+authRouter.post('/forgot-password', forgotPassword);
 
 // Endpoint for resetting the password using the OTP received via email
-authRouter.post('/auth/reset-password', resetPassword);
+authRouter.post('/reset-password', resetPassword);
+
+// Endpoint for verify-otp using the OTP received via email
+authRouter.post('/verify-otp', verifyOTP);
 
 // New endpoint for generating OTP via mobile number
-authRouter.post('/auth/mobile-otp', mobileOtp);
+authRouter.post('/mobile-otp', mobileOtp);
 
 module.exports = { authRouter };
